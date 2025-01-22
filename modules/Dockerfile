@@ -70,10 +70,16 @@ RUN apt-get update \
     && echo "BUILT_MODULES=\"$BUILT_MODULES\"" > /tmp/packages/modules.env
 
 FROM ${NGINX_FROM_IMAGE}
-RUN --mount=type=bind,target=/tmp/packages/,source=/tmp/packages/,from=builder \
-    apt-get update \
+COPY --from=builder /tmp/packages /tmp/packages
+RUN apt-get update \
     && . /tmp/packages/modules.env \
     && for module in $BUILT_MODULES; do \
            apt-get install --no-install-suggests --no-install-recommends -y /tmp/packages/nginx-module-${module}_${NGINX_VERSION}*.deb; \
        done \
     && rm -rf /var/lib/apt/lists/
+
+WORKDIR /etc/nginx
+
+RUN mv /etc/nginx/nginx.conf /etc/nginx/nginx.cfg \
+    && ls -1 modules | grep -v debug | sed -e 's|^|load_module modules/|;s|$|;|' > nginx.conf
+RUN cat nginx.cfg >> nginx.conf && rm nginx.cfg

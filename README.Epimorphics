@@ -1,0 +1,17 @@
+A fork from the officail Nginx Inc docker image.
+
+The included `nginx.conf` automatically loads build-in modules.
+
+To build:
+
+```
+cd modules
+docker build --build-arg ENABLED_MODULES="ndk lua geoip2" -t epimorphics/nginx:latest .
+```
+
+To Release:
+
+```
+docker tag epimorphics/nginx:latest 293385631482.dkr.ecr.eu-west-1.amazonaws.com/epimorphics/nginx:<version>
+docker push 293385631482.dkr.ecr.eu-west-1.amazonaws.com/epimorphics/nginx:<version>
+```
